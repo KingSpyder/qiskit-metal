@@ -55,7 +55,9 @@ class QHFSSRenderer(QAnsysRenderer):
 
     hfss_options = Dict(
         port_inductor_gap=
-        '10um'  # spacing between port and inductor if junction is drawn both ways
+        '10um',  # spacing between port and inductor if junction is drawn both ways
+        resistance_per_sq='50',
+        reactance_per_sq='0',
     )
     """HFSS Options"""
 
@@ -405,8 +407,10 @@ class QHFSSRenderer(QAnsysRenderer):
 
     def metallize(self):
         """Assign metallic property to all shapes in self.assign_perfE list."""
+        self.modeler.assign_impedance(self.assign_impedance,
+                                      resistance=self.hfss_options.resistance_per_sq,
+                                      reactance=self.hfss_options.reactance_per_sq)
         self.modeler.assign_perfect_E(self.assign_perfE)
-        self.modeler.assign_impedance(self.assign_impedance)
 
     def add_drivenmodal_design(self, name: str, connect: bool = True):
         """
