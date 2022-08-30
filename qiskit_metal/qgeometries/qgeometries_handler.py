@@ -443,6 +443,7 @@ class QGeometryTables(object):
             geometry: dict,
             subtract: bool = False,
             helper: bool = False,
+            impedance: bool = False,
             layer: Union[int, str] = 1,  # chip will be here
             chip: str = 'main',
             **other_options):
@@ -465,6 +466,8 @@ class QGeometryTables(object):
             subtract = subtract in TRUE_BOOLS
         if not isinstance(helper, bool):
             helper = helper in TRUE_BOOLS
+        if not isinstance(impedance, bool):
+            impedance = impedance in TRUE_BOOLS
 
         if not (kind in self.get_element_types()):
             self.logger.error(
@@ -472,6 +475,7 @@ class QGeometryTables(object):
                 f'Kind must be in {self.get_element_types()}. This failed for component'
                 f'name = `{component_name}`.\n'
                 f' The call was with subtract={subtract} and helper={helper}'
+                f' and impedance={impedance}'
                 f' and layer={layer}, and options={other_options}')
 
         #Checks if (any) of the geometry are MultiPolygons, and breaks them up into
@@ -501,6 +505,7 @@ class QGeometryTables(object):
         options = dict(component=component_name,
                        subtract=subtract,
                        helper=helper,
+                       impedance=impedance,
                        layer=int(layer),
                        chip=chip,
                        **other_options)

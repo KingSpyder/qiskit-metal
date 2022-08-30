@@ -1,4 +1,4 @@
-name: qiskit-metal
+name: qiskit-metal-custom
 channels:
   - conda-forge
 dependencies:
