@@ -1027,6 +1027,7 @@ class QAnsysRenderer(QRendererAnalysis):
 
         self.chip_subtract_dict = defaultdict(set)
         self.assign_perfE = []
+        self.assign_impedance = []
         self.assign_mesh = []
 
         self.render_tables()
@@ -1216,6 +1217,8 @@ class QAnsysRenderer(QRendererAnalysis):
             self.chip_subtract_dict[qgeom.chip].add(name)
 
         # Potentially add to list of elements to metallize
+        elif qgeom["impedance"]:
+            self.assign_impedance.append(name)
         elif not qgeom["helper"]:
             self.assign_perfE.append(name)
 
@@ -1298,6 +1301,9 @@ class QAnsysRenderer(QRendererAnalysis):
 
         if qgeom["subtract"]:
             self.chip_subtract_dict[qgeom.chip].add(name)
+
+        elif qgeom["impedance"] and qgeom["width"] and (not qgeom["helper"]):
+            self.assign_impedance.append(name)
 
         elif qgeom["width"] and (not qgeom["helper"]):
             self.assign_perfE.append(name)

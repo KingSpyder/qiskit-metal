@@ -1076,6 +1076,7 @@ name='{strname}'{other_args}
             geometry: dict,
             subtract: bool = False,
             helper: bool = False,
+            impedance: bool = False,
             layer: Union[int, str] = None,  # chip will be here
             chip: str = None,
             **kwargs):
@@ -1135,6 +1136,7 @@ name='{strname}'{other_args}
                                             geometry,
                                             subtract=subtract,
                                             helper=helper,
+                                            impedance=impedance,
                                             layer=layer,
                                             chip=chip,
                                             **renderer_and_options)
