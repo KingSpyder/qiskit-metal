@@ -82,10 +82,12 @@ class HalfATS(QComponent):
         inductor_width='5um',
         pad_width='5um',
         cell_length='50um',
-        jj_wire_width='2um',
+        jj_wire_width='3um',
         bridge_width='350nm',
-        jj_width='0.5um',
-        jj_wire_spacing='20um',
+        jj_width='0.4um',
+        jj_wire_spacing='30um',
+        jj_lead_width='1um',
+        jj_lead_length='5um',
         gap_inner='5um',
         gap_outer='30um',
         layers=[1,2],
@@ -129,9 +131,18 @@ class HalfATS(QComponent):
                                                    wire_sub_pos, pad_height-p.inductor_width/2)
         jj_wire = draw.subtract(jj_wire_raw, jj_wire_sub)
         
+        jj_lead_y_off = pad_height-p.jj_wire_width/2-p.jj_lead_width/2-p.inductor_width/2
+        jj_lead_raw = draw_rectangle_corner_offset(p.jj_wire_spacing, p.jj_lead_width, 
+                                                   wire_sub_pos, jj_lead_y_off)
+        jj_lead_sub_pos = p.pad_width + p.cell_length/2 - p.jj_lead_length/2
+        jj_lead_sub = draw_rectangle_corner_offset(p.jj_lead_length, p.jj_lead_width,
+                                                   jj_lead_sub_pos, jj_lead_y_off)
+        jj_lead = draw.subtract(jj_lead_raw, jj_lead_sub)
+        
+        jj_pos = p.pad_width + p.cell_length/2 - p.jj_lead_length/2
         jj_y_off = pad_height-p.jj_wire_width/2-p.jj_width/2-p.inductor_width/2
-        jj_rect_raw = draw_rectangle_corner_offset(p.jj_wire_spacing, p.jj_width, 
-                                                   wire_sub_pos, jj_y_off)
+        jj_rect_raw = draw_rectangle_corner_offset(p.jj_lead_length, p.jj_width, 
+                                                   jj_pos, jj_y_off)
         jj_sub_pos = p.pad_width + p.cell_length/2 - p.bridge_width/2
         jj_rect_sub = draw_rectangle_corner_offset(p.bridge_width, p.jj_width,
                                                    jj_sub_pos, jj_y_off)
@@ -146,7 +157,7 @@ class HalfATS(QComponent):
                                          (jj_sub_pos+p.bridge_width, fake_junction_y)])
         
         lower_cell = draw.union([pad_left, pad_right, inductor])
-        upper_cell = draw.union([pad_left, pad_right, jj_wire, jj_rect])
+        upper_cell = draw.union([pad_left, pad_right, jj_wire, jj_lead, jj_rect])
         # Rotate and translate all qgeometry as needed.
         # Done with utility functions in Metal 'draw_utility' for easy rotation/translation
         polys = [fake_junction, lower_cell, upper_cell, pocket_rect]
@@ -208,6 +219,8 @@ class HalfATSLine(HalfATS):
         chip = p.chip
         
         tot_cell_length = (2*p.pad_width+p.cell_length)
+        if p.alternate:
+            tot_cell_length -= p.pad_width
         # pad_heigth = p.jj_wire_width + p.gap_inner + p.inductor_width
         # diag_length = np.sqrt((2*p.pad_width+p.cell_length)**2+pad_heigth**2)
         # diag_angle = np.arctan2(pad_heigth, (2*p.pad_width+p.cell_length))
