@@ -65,6 +65,7 @@ class CoupledLineTeeMultiMat(QComponent):
                            prime_gap='6um',
                            second_width='10um',
                            second_gap='6um',
+                           second_start_overlap='0um',
                            coupling_space='3um',
                            coupling_length='100um',
                            down_length='100um',
@@ -72,7 +73,7 @@ class CoupledLineTeeMultiMat(QComponent):
                            mirror=False,
                            open_termination=True,
                            layer=[1],
-                           impedance=False)
+                           impedance=[False])
     """Default connector options"""
 
     TOOLTIP = """Generates a three pin (+) 
@@ -87,9 +88,15 @@ class CoupledLineTeeMultiMat(QComponent):
         """Build the component."""
         p = self.p
         if not isinstance(p.layer, list):
-            p.layer = [p.layer, p.layer]
+            p.layer = [p.layer, p.layer, p.layer]
         if len(p.layer)==1:
-            p.layer = [p.layer[0], p.layer[0]]
+            p.layer = [p.layer[0], p.layer[0], p.layer[0]]
+        if len(p.layer)==2:
+            p.layer = [p.layer[0], p.layer[0], p.layer[1]]
+        if not isinstance(p.impedance, list):
+            p.impedance = [p.impedance, p.impedance]
+        if len(p.impedance)==1:
+            p.impedance = [p.impedance[0], p.impedance[0]]
         prime_cpw_length = p.coupling_length * 2
         second_flip = 1
         if p.mirror:
@@ -103,7 +110,7 @@ class CoupledLineTeeMultiMat(QComponent):
         second_down_length = p.down_length
         second_y = -p.prime_width / 2 - p.prime_gap - p.coupling_space - p.second_gap - p.second_width / 2
         second_cpw = draw.LineString(
-            [[second_flip * (-p.coupling_length / 2), second_y],
+            [[second_flip * (-p.coupling_length / 2 - p.second_start_overlap), second_y],
              [second_flip * (p.coupling_length / 2), second_y],
              [
                  second_flip * (p.coupling_length / 2),
@@ -132,13 +139,13 @@ class CoupledLineTeeMultiMat(QComponent):
 
         #Add to qgeometry tables
         self.add_qgeometry('path', {'prime_cpw': prime_cpw},
-                           width=p.prime_width, layer=p.layer[0])
+                           width=p.prime_width, layer=p.layer[1], impedance=p.impedance[0])
         self.add_qgeometry('path', {'prime_cpw_sub': prime_cpw},
                            width=p.prime_width + 2 * p.prime_gap,
                            subtract=True, layer=p.layer[0])
         self.add_qgeometry('path', {'second_cpw': second_cpw},
                            width=p.second_width,
-                           fillet=p.fillet, layer=p.layer[1], impedance=p.impedance)
+                           fillet=p.fillet, layer=p.layer[2], impedance=p.impedance[1])
         self.add_qgeometry('path', {'second_cpw_sub': second_cpw_etch},
                            width=p.second_width + 2 * p.second_gap,
                            subtract=True,
