@@ -77,7 +77,7 @@ class SuperLaunchpadWirebond(QComponent):
     """
 
     default_options = Dict(
-        layer=[1, 2],
+        layer=[1,2],
         trace_width='cpw_width',
         trace_gap='cpw_gap',
         lead_length='25um',
@@ -87,7 +87,8 @@ class SuperLaunchpadWirebond(QComponent):
         taper_height='122um',
         pos_x='0um',
         pos_y='0um',
-        orientation='0'  #90 for 90 degree turn
+        orientation='0',  #90 for 90 degree turn
+        overlap='50um'
     )
     """Default options"""
 
@@ -98,7 +99,14 @@ class SuperLaunchpadWirebond(QComponent):
         component."""
 
         p = self.p
-
+        
+        if not isinstance(p.layer, list):
+            p.layer = [p.layer]
+        if len(p.layer)==1:
+            p.layer = [p.layer[0]]*3
+        if len(p.layer)==2:
+            p.layer = [p.layer[0], p.layer[0], p.layer[1]]
+            
         pad_width = p.pad_width
         pad_height = p.pad_height
         pad_gap = p.pad_gap
@@ -123,6 +131,8 @@ class SuperLaunchpadWirebond(QComponent):
             (0, trace_width_half)
         ])
 
+        overlap_pad = draw.rectangle(p.overlap, trace_width, lead_length)
+        
         # Geometry pocket (gap)
         # Same way applied for pocket
         pocket = draw.Polygon([(0, trace_width_half + trace_gap),
@@ -142,26 +152,27 @@ class SuperLaunchpadWirebond(QComponent):
                                          (lead_length, -trace_width_half)])
 
         # Create polygon object list
-        polys1 = [main_pin_line, launch_pad, pocket]
+        polys1 = [main_pin_line, launch_pad, pocket, overlap_pad]
 
         # Rotates and translates all the objects as requested. Uses package functions in
         # 'draw_utility' for easy rotation/translation
         polys1 = draw.rotate(polys1, p.orientation, origin=(0, 0))
         polys1 = draw.translate(polys1, xoff=p.pos_x, yoff=p.pos_y)
-        [main_pin_line, launch_pad, pocket] = polys1
+        [main_pin_line, launch_pad, pocket, overlap_pad] = polys1
 
         # Adds the object to the qgeometry table
-        self.add_qgeometry('poly', dict(launch_pad=launch_pad), layer=p.layer[0])
+        self.add_qgeometry('poly', dict(launch_pad=launch_pad), layer=p.layer[1])
+        self.add_qgeometry('poly', dict(overlap_pad=overlap_pad), layer=p.layer[2])
 
         # Subtracts out ground plane on the layer its on
         self.add_qgeometry('poly',
                            dict(pocket=pocket),
                            subtract=True,
                            layer=p.layer[0])
-        self.add_qgeometry('poly',
-                           dict(pocket=pocket),
-                           subtract=True,
-                           layer=p.layer[1])
+        # self.add_qgeometry('poly',
+        #                    dict(pocket=pocket),
+        #                    subtract=True,
+        #                    layer=p.layer[1])
 
         # Generates the pins
         self.add_pin('tie', main_pin_line.coords, trace_width)

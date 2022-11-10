@@ -19,10 +19,11 @@ from qiskit_metal.qlibrary.core import QRoutePoint
 from collections import OrderedDict
 from qiskit_metal.qlibrary.user_components.meandered_mod import RouteModMeander
 from qiskit_metal.qlibrary.user_components.modpathfinder import RouteModPathfinder
+from qiskit_metal.qlibrary.user_components.framed_modpath import RouteModFramed
 
 
 # class RouteMixed(RouteFramed, RoutePathfinder, RouteMeander):
-class RouteModMixed(RouteModPathfinder, RouteModMeander):
+class RouteModMixed(RouteModFramed, RouteModPathfinder, RouteModMeander):
     """Implements fully featured Routing, allowing different type of
     connections between anchors. The comprehensive Routing class. Inherits
     `RoutePathfinder, RouteMeander` class, thus also QRoute and RouteAnchors.
