@@ -77,8 +77,10 @@ class QGDSRenderer(QRenderer):
 
 
     datatype:
-        * 10 Polygon
-        * 11 Flexpath
+        * I put 0 everywhere because of E-Line software
+        Used to be: 
+            * 10 Polygon
+            * 11 Flexpath
 
     Default Options:
         * short_segments_to_not_fillet: 'True'
@@ -1825,13 +1827,13 @@ class QGDSRenderer(QRenderer):
                 (jj_minx - pad_x_size_minus_overlap, pad_miny),
                 (jj_minx + junction_pad_overlap, pad_miny + pad_height),
                 layer=int(row.layer),
-                datatype=10)
+                datatype=0)
 
             pad_right = gdspy.Rectangle(
                 (jj_maxx - junction_pad_overlap, pad_miny),
                 (jj_maxx + pad_x_size_minus_overlap, pad_miny + pad_height),
                 layer=int(row.layer),
-                datatype=10)
+                datatype=0)
 
         return rotation, center, pad_left, pad_right
 
@@ -2283,7 +2285,7 @@ class QGDSRenderer(QRenderer):
             exterior_poly = gdspy.Polygon(
                 list(geom.exterior.coords),
                 layer=qgeometry_element.layer,
-                datatype=10,
+                datatype=0,
             )
 
             # If polygons have a holes, need to remove it for gdspy.
@@ -2294,7 +2296,7 @@ class QGDSRenderer(QRenderer):
                     all_interiors.append(interior_coords)
                 a_poly_set = gdspy.PolygonSet(all_interiors,
                                               layer=qgeometry_element.layer,
-                                              datatype=10)
+                                              datatype=0)
                 # Since there is max_points in boolean, don't need to do this twice.
                 # a_poly_set = a_poly_set.fracture(max_points=max_points)
                 # exterior_poly = exterior_poly.fracture(max_points=max_points)
@@ -2304,7 +2306,7 @@ class QGDSRenderer(QRenderer):
                                        max_points=max_points,
                                        precision=precision,
                                        layer=qgeometry_element.layer,
-                                       datatype=10)
+                                       datatype=0)
                 return a_poly
 
             exterior_poly = exterior_poly.fracture(max_points=max_points,
@@ -2343,13 +2345,13 @@ class QGDSRenderer(QRenderer):
                                                use_width,
                                                layer=qgeometry_element.layer,
                                                max_points=max_points,
-                                               datatype=11)
+                                               datatype=0)
                 else:
                     to_return = gdspy.FlexPath(
                         list(geom.coords),
                         use_width,
                         layer=qgeometry_element.layer,
-                        datatype=11,
+                        datatype=0,
                         max_points=max_points,
                         corners=corners,
                         bend_radius=qgeometry_element.fillet,
