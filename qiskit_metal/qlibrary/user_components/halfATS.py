@@ -1,22 +1,3 @@
-"""Transmon Pocket.
-
-.. code-block::
-     ________________________________
-    |______ ____           __________|
-    |      |____|         |____|     |
-    |        __________________      |
-    |       |                  |     |
-    |       |__________________|     |
-    |                 |              |
-    |                 x              |
-    |        _________|________      |
-    |       |                  |     |
-    |       |__________________|     |
-    |        ______                  |
-    |_______|______|                 |
-    |________________________________|
-"""
-
 from re import T
 import numpy as np
 from qiskit_metal import draw, Dict
@@ -26,58 +7,6 @@ def draw_rectangle_corner_offset(w, h, xoff=0, yoff=0):
     return draw.rectangle(w, h, xoff+w/2, yoff+h/2)
 
 class HalfATS(QComponent):
-    """The base `TransmonPocket` class.
-
-    Inherits `BaseQubit` class.
-
-    Create a standard pocket transmon qubit for a ground plane,
-    with two pads connected by a junction (see drawing below).
-
-    Connector lines can be added using the `connection_pads`
-    dictionary. Each connector pad has a name and a list of default
-    properties.
-
-    Sketch:
-        Below is a sketch of the qubit
-        ::
-
-                 +1                            +1
-                ________________________________
-            -1  |______ ____           __________|   +1     Y
-                |      |____|         |____|     |          ^
-                |        __________________      |          |
-                |       |     island       |     |          |----->  X
-                |       |__________________|     |
-                |                 |              |
-                |  pocket         x              |
-                |        _________|________      |
-                |       |                  |     |
-                |       |__________________|     |
-                |        ______                  |
-                |_______|______|                 |
-            -1  |________________________________|   +1
-                 
-                 -1                            -1
-
-    .. image::
-        transmon_pocket.png
-
-    .. meta::
-        Transmon Pocket
-
-    BaseQubit Default Options:
-        * connection_pads: Empty Dict -- The dictionary which contains all active connection lines for the qubit.
-        * _default_connection_pads: Empty Dict -- The default values for the (if any) connection lines of the qubit.
-
-    Default Options:
-        * pad_gap: '30um' -- The distance between the two charge islands, which is also the resulting 'length' of the pseudo junction
-        * inductor_width: '20um' -- Width of the pseudo junction between the two charge islands (if in doubt, make the same as pad_gap). Really just for simulating in HFSS / other EM software
-        * pad_width: '455um' -- The width (x-axis) of the charge island pads
-        * pad_height: '90um' -- The size (y-axis) of the charge island pads
-        * pocket_width: '650um' -- Size of the pocket (cut out in ground) along x-axis
-        * pocket_height: '650um' -- Size of the pocket (cut out in ground) along y-axis
-    """
-
     default_options = Dict(
         inductor_width='5um',
         pad_width='5um',
@@ -102,10 +31,9 @@ class HalfATS(QComponent):
                               _qgeometry_table_junction='True')
     """Component metadata"""
 
-    TOOLTIP = """Not the base `TransmonPocket` class."""
+    TOOLTIP = """HalfATS."""
     
     def make_cell(self, offset_x=0, offset_y=0, alternate=False, affix=None):
-        """Makes standard transmon in a pocket."""
 
         # self.p allows us to directly access parsed values (string -> numbers) form the user option
         p = self.p
@@ -187,7 +115,7 @@ class HalfATS(QComponent):
                            chip=chip, layer=p.layers[1])
         self.add_qgeometry('poly',
                            {pocket_rect_name: pocket_rect},
-                           chip=chip, layer=p.layers[0],
+                           chip=chip, layer=p.layers[1],
                            subtract=True)
         self.add_qgeometry('junction',
                            {fake_junction_name: fake_junction},
@@ -212,7 +140,7 @@ class HalfATSLine(HalfATS):
                               _qgeometry_table_junction='True')
     """Component metadata"""
 
-    TOOLTIP = """Not the base `TransmonPocket` class."""
+    TOOLTIP = """Half ATS line."""
     
     def make(self):
         p = self.p

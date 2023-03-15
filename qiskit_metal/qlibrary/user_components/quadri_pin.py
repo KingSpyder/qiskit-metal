@@ -19,7 +19,7 @@ class QuadriPin(QComponent):
         width="50um",
         height="50um",
         pocket_width="50um",
-        pocket_heigth="100um"
+        pocket_height="100um"
     )
     
     def make(self):
@@ -30,7 +30,7 @@ class QuadriPin(QComponent):
             p.layer = p.layer*2
 
         quadri = draw.rectangle(p.width, p.height)
-        pocket = draw.rectangle(p.pocket_width, p.pocket_heigth)
+        pocket = draw.rectangle(p.pocket_width, p.pocket_height)
         polys = [quadri, pocket]
         polys = draw.rotate(polys, p.orientation, origin=(0,0))
         polys = draw.translate(polys, p.pos_x, p.pos_y)
@@ -39,8 +39,9 @@ class QuadriPin(QComponent):
         quadri_name = "quadri_pin"
         pocket_name = "quadri_pocket"
         chip = p.chip
-        self.add_qgeometry('poly',{quadri_name: quadri},
-                        chip=chip, layer=p.layer[1])
+        for layer in p.layer[1:]:
+            self.add_qgeometry('poly',{quadri_name: quadri},
+                            chip=chip, layer=layer)
         self.add_qgeometry('poly',{pocket_name: pocket},
                            chip=chip, layer=p.layer[0], subtract=True)
         self.add_pin("bottom", quadri.boundary.coords[0:2][::-1], width=p.width)
