@@ -114,6 +114,16 @@ def subtract(poly_main: shapely.geometry.Polygon,
     """
     return poly_main.difference(poly_tool)
 
+def intersection(polys_main: shapely.geometry.Polygon,
+             poly_tool: shapely.geometry.Polygon):
+    """Geometry intersection tool poly and main poly.
+
+    Returns:
+        Polygon: Intersection the given Polygons
+    """
+    inter_fonc = lambda poly:poly.intersection(poly_tool)
+    return _iter_func_geom_(inter_fonc,
+                            polys_main)
 
 def union(*polys):
     """Geometry union of two or more polys.

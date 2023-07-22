@@ -4,25 +4,28 @@ from qiskit_metal import draw, Dict
 from qiskit_metal.qlibrary.core import QComponent
 
 
-class Cross(QComponent):
-    """Alignement butterfly cross.
+class Crosshair(QComponent):
+    """Alignement crosshair cross.
 
     Inherits QComponent class.
 
     The class will add default_options class Dict to QComponent class before calling make.
 
     Default Options:
-        * size: '5um'
+        * size_small: '100nm'
+        * size_big: '1000nm'
         * pocket_width: None
         * helper: False
     """
 
-    default_options = Dict(size='5um',
+    default_options = Dict(size_small='100nm',
+                           size_big='1000nm',
                            pocket_width=None,
-                           helper='False')
+                           helper='False',
+                           subtract='False')
     """Default drawing options"""
 
-    TOOLTIP = """A single configurable butterfly cross"""
+    TOOLTIP = """A single configurable crosshair cross"""
 
     def make(self):
         """The make function implements the logic that creates the geoemtry
@@ -35,28 +38,34 @@ class Cross(QComponent):
         # create the geometry
         if p.pocket_width is not None:
             pocket = draw.rectangle(p.pocket_width, p.pocket_width)
-        up_triangle = draw.shapely.geometry.Polygon([(0, 0), (-p.size/2, p.size/2), (p.size/2, p.size/2)])
-        down_triangle = draw.shapely.geometry.Polygon([(0, 0), (-p.size/2, -p.size/2), (p.size/2, -p.size/2)])
+        
+        big_left = draw.rectangle(3.125*p.size_big, p.size_big,
+                                  -2*p.size_big - 3.125/2*p.size_big, 0)
+        big_right = draw.rectangle(3.125*p.size_big, p.size_big,
+                                  2*p.size_big + 3.125/2*p.size_big, 0)
+        big_down = draw.rectangle(p.size_big, 3.125*p.size_big,
+                                  0, -2*p.size_big - 3.125/2*p.size_big)
+        big_up = draw.rectangle(p.size_big, 3.125*p.size_big,
+                                  0, 2*p.size_big + 3.125/2*p.size_big)
+        small_horiz = draw.rectangle(4*p.size_big, p.size_small)
+        small_vertic = draw.rectangle(p.size_small, 4*p.size_big)
+        
+        crosshair = draw.union(big_down, big_left, big_right, big_up, small_horiz, small_vertic)
         
         if p.pocket_width is not None:
-            triangles = [up_triangle, down_triangle, pocket]
+            polys = [crosshair, pocket]
         else:
-            triangles = [up_triangle, down_triangle]
-        triangles = draw.rotate(triangles, p.orientation, origin=(0,0))
-        triangles = draw.translate(triangles, p.pos_x, p.pos_y)
+            polys = [crosshair]
+        polys = draw.rotate(polys, p.orientation, origin=(0,0))
+        polys = draw.translate(polys, p.pos_x, p.pos_y)
         if p.pocket_width is not None:
-            [up_triangle, down_triangle, pocket] = triangles
+            [crosshair, pocket] = polys
         else:
-            [up_triangle, down_triangle] = triangles
+            [crosshair] = polys
         ##############################################
         # add qgeometry
-        self.add_qgeometry('poly', {'rectangle': up_triangle},
-                           subtract=False,
-                           helper=p.helper,
-                           layer=p.layer,
-                           chip=p.chip)
-        self.add_qgeometry('poly', {'rectangle': down_triangle},
-                           subtract=False,
+        self.add_qgeometry('poly', {'rectangle': crosshair},
+                           subtract=p.subtract,
                            helper=p.helper,
                            layer=p.layer,
                            chip=p.chip)
