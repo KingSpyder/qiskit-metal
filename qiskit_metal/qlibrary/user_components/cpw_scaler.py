@@ -12,6 +12,7 @@ class CPWScaler(QComponent):
         * width_out: '500um'
         * gap_out: '300um'
         * scaler_length: '100um'
+        * in_compensation: ['0um', '0um'] (bottom & top)
         * helper: 'False'
     """
 
@@ -20,6 +21,7 @@ class CPWScaler(QComponent):
                            width_out='500um',
                            gap_out='300um',
                            scaler_length='100um',
+                           in_compensation=['0um', '0um'],
                            helper='False')
     """Default drawing options"""
 
@@ -30,11 +32,14 @@ class CPWScaler(QComponent):
 
         # create the geometry
         gap = draw.Polygon([
-            [0, -p.width_in/2 - p.gap_in],
-            [0, +p.width_in/2 + p.gap_in],
+            [0, -p.width_in/2 - p.gap_in - p.in_compensation[0]],
+            [0, +p.width_in/2 + p.gap_in + p.in_compensation[1]],
+            [p.in_compensation[1], +p.width_in/2 + p.gap_in],
             [p.scaler_length, +p.width_out/2 + p.gap_out],
             [p.scaler_length, -p.width_out/2 - p.gap_out],
+            [p.in_compensation[0], -p.width_in/2 - p.gap_in],
         ])
+        
         trace = draw.Polygon([
             [0, -p.width_in/2],
             [0, +p.width_in/2],
