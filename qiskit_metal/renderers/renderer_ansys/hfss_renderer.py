@@ -407,9 +407,11 @@ class QHFSSRenderer(QAnsysRenderer):
 
     def metallize(self):
         """Assign metallic property to all shapes in self.assign_perfE list."""
-        self.modeler.assign_impedance(self.assign_impedance,
-                                      resistance=self.hfss_options.resistance_per_sq,
-                                      reactance=self.hfss_options.reactance_per_sq)
+        #prevent crash bug when list is empty...
+        if len(self.assign_impedance)>0:
+            self.modeler.assign_impedance(self.assign_impedance,
+                                        resistance=self.hfss_options.resistance_per_sq,
+                                        reactance=self.hfss_options.reactance_per_sq)
         self.modeler.assign_perfect_E(self.assign_perfE)
 
     def add_drivenmodal_design(self, name: str, connect: bool = True):
