@@ -29,6 +29,7 @@ class capaJanis(QComponent):
                            corner_rounding="200nm",
                            diel_overlap="5um",
                            layer=[1, 2, 3],
+                           double_paded=False,
                            helper='False')
     """Default drawing options"""
 
@@ -48,10 +49,10 @@ class capaJanis(QComponent):
             [-2*p.pad_gap, -p.pad_width/2 - p.pad_gap],
             [-2*p.pad_gap, p.pad_width/2 + p.pad_gap],
             [p.pad_length - p.pad_gap, p.pad_width/2 + p.pad_gap],
-            [p.pad_length - p.pad_gap, p.capa_height/2 + p.pad_gap],
-            [p.pad_length + p.capa_width + p.pad_gap/2, p.capa_height/2 + p.pad_gap],
-            [p.pad_length + p.capa_width + p.pad_gap/2, -p.capa_height/2 - p.pad_gap],
-            [p.pad_length - p.pad_gap, -p.capa_height/2 - p.pad_gap],
+            [p.pad_length - p.pad_gap, p.pad_width/2 + p.pad_gap],
+            [p.pad_length + p.capa_width + p.pad_gap/2, p.pad_width/2 + p.pad_gap],
+            [p.pad_length + p.capa_width + p.pad_gap/2, -p.pad_width/2 - p.pad_gap],
+            [p.pad_length - p.pad_gap, -p.pad_width/2 - p.pad_gap],
             [p.pad_length - p.pad_gap, -p.pad_width/2 - p.pad_gap]
         ]), p.corner_rounding)
         
@@ -86,11 +87,21 @@ class capaJanis(QComponent):
             [p.pad_length + p.capa_width - p.alignment_tol, -p.capa_height/2 + p.top_cap_reduction]
         ]), p.corner_rounding)
         
+        if p.double_paded:
+            top_conduc = draw.union(top_conduc,
+                                    draw.rectangle(p.pad_length - p.pad_gap - p.alignment_tol, p.pad_width - p.alignment_tol,
+                                                   p.pad_length/2 - p.pad_gap/2 - p.alignment_tol/2),
+                                    draw.rectangle(p.pad_length - p.alignment_tol, p.pad_width - p.alignment_tol,
+                                                   p.pad_length/2 - p.alignment_tol/2, p.pad_width + p.pad_gap + p.alignment_tol),
+                                    draw.rectangle(p.pad_length - p.alignment_tol, p.pad_width ,
+                                                   p.pad_length/2 - p.alignment_tol/2, -p.pad_width - p.pad_gap - p.alignment_tol)
+                                    )
+        
         diel = round_polygon(draw.rectangle(2*p.diel_overlap + p.capa_width + p.pad_gap, p.capa_height + 2*p.diel_overlap + 2*p.pad_gap,
                              p.pad_length + p.capa_width/2, 0), p.corner_rounding)
         
         polys = [pocket, bottom_conduc, top_conduc, diel]
-        polys = draw.rotate(polys, p.orientation)
+        polys = draw.rotate(polys, p.orientation, origin=(0, 0))
         polys = draw.translate(polys, p.pos_x, p.pos_y)
         [pocket, bottom_conduc, top_conduc, diel] = polys
         ##############################################
